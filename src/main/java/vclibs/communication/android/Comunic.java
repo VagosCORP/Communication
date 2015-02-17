@@ -51,6 +51,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	public boolean edebug = true;
 	
 	public boolean Flag_LowLevel = true;
+    public boolean Flag_LowLevelSig = false;
 
 	//Eventos usados según el caso
 	OnConnectionListener onConnListener;
@@ -149,8 +150,11 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	 * función de envio numérico, 1 Byte (rango de 0 a 255)
 	 * @param dato
 	 */
-	public void enviar(int dato) {
-//		Log.d("Comunic", "Enviar int: " + dato);
+
+    public void enviar(int dato) {
+		enviar_Int8(dato);
+    }
+	public void enviar_Int8(int dato) {
 		try {
 			if (estado == CONNECTED)
 				outputSt.writeByte(dato);
@@ -161,12 +165,67 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		}
 	}
 
-	//Función de finalización de Conexión
+    public void enviar_Int16(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeShort(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar_Int32(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeInt(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar_Int64(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeLong(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar(float dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeFloat(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar(double dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeDouble(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    //Función de finalización de Conexión
 	public void Cortar_Conexion() {
 		try {
-			if (estado == CONNECTED && socket != null) {
+            if (estado == CONNECTED && socket != null) {
 				socket.close();
-				cancel(true);// socket = null;
+                cancel(true);// socket = null;
 			}
 		} catch (IOException e) {
 			wlog(e.getMessage());
@@ -213,19 +272,19 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		try {
 			if (tcon == CLIENT) {
 				socket = new Socket();
-				if (socket != null) {
-					socket.connect(isa,7000);//reintentar por 7 segundos
-				} else
-					socket = null;
+//				if(socket != null) {
+                socket.connect(isa,7000);//reintentar por 7 segundos
+//				} else
+//					socket = null;
 			} else if (tcon == SERVER) {
 				serverSocket = new ServerSocket(sPort);
-				if (serverSocket != null) {
-					publishProgress(EN_ESPERA);
-					socket = serverSocket.accept();
-					serverSocket.close();
-					serverSocket = null;
-				} else
-					socket = null;
+//				if (serverSocket != null) {
+                publishProgress(EN_ESPERA);
+                socket = serverSocket.accept();
+                serverSocket.close();
+                serverSocket = null;
+//				} else
+//					socket = null;
 			}
 			if (socket != null && socket.isConnected()) {
 				inputSt = new DataInputStream(socket.getInputStream());
@@ -297,7 +356,11 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			byte[] buffer = values[2];
 			String rcv = new String(buffer, 0, len);
 			int[] nrcv = new int[len];
-			if(Flag_LowLevel) {
+            if(Flag_LowLevelSig) {
+                for(int i = 0; i < len; i++) {
+                    nrcv[i] = buffer[i];
+                }
+            }else if(Flag_LowLevel) {
 				for(int i = 0; i < len; i++) {
 					nrcv[i] = 0xFF & buffer[i];
 				}
@@ -325,7 +388,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	@Override
 	protected void onCancelled() {
 		wlog(Inf.ON_CANCELLED);
-		onPostExecute(1);
+        onPostExecute(1);
 		super.onCancelled();
 	}
 

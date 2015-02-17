@@ -1,5 +1,13 @@
 package vclibs.communication.android;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,13 +16,6 @@ import java.util.UUID;
 import vclibs.communication.Eventos.OnComunicationListener;
 import vclibs.communication.Eventos.OnConnectionListener;
 import vclibs.communication.Inf;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 
 public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 
@@ -43,6 +44,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	boolean conectado = false;
 	public int estado = NULL;
 	public boolean Flag_LowLevel = true;
+    public boolean Flag_LowLevelSig = false;
 	public boolean debug = true;
 	public boolean idebug = true;
 	public boolean edebug = true;
@@ -105,16 +107,74 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		}
 	}
 
-	public void enviar(int dato) {
-		try {
-			if (estado == CONNECTED)
-				outputSt.writeByte(dato);
-		} catch (IOException e) {
-			wlog(e.getMessage());
-			if(edebug)
-				e.printStackTrace();
-		}
-	}
+    public void enviar(int dato) {
+        enviar_Int8(dato);
+    }
+    public void enviar_Int8(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeByte(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar_Int16(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeShort(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar_Int32(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeInt(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar_Int64(int dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeLong(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar(float dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeFloat(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
+
+    public void enviar(double dato) {
+        try {
+            if (estado == CONNECTED)
+                outputSt.writeDouble(dato);
+        } catch (IOException e) {
+            wlog(e.getMessage());
+            if(edebug)
+                e.printStackTrace();
+        }
+    }
 
 	public void Cortar_Conexion() {
 		try {
@@ -164,10 +224,10 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		try {
 			if (tcon == CLIENT) {
 				socket = mDevice.createRfcommSocketToServiceRecord(myUUID);
-				if (socket != null) {
-					socket.connect();
-				} else
-					socket = null;
+//				if (socket != null) {
+                socket.connect();
+//				} else
+//					socket = null;
 			} else if (tcon == SERVER) {
 				serverSocket = BTAdapter.listenUsingRfcommWithServiceRecord(
 						"sas", myUUID);
@@ -254,7 +314,11 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 			byte[] buffer = values[2];
 			String rcv = new String(buffer, 0, len);
 			int[] nrcv = new int[len];
-			if(Flag_LowLevel) {
+            if(Flag_LowLevelSig) {
+                for(int i = 0; i < len; i++) {
+                    nrcv[i] = buffer[i];
+                }
+            }else if(Flag_LowLevel) {
 				for(int i = 0; i < len; i++) {
 					nrcv[i] = 0xFF & buffer[i];
 				}
