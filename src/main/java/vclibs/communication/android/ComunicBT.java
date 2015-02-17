@@ -19,16 +19,17 @@ import vclibs.communication.Inf;
 
 public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 
-	public final int NULL = 0;// estado
-	public final int WAITING = 1;// estado
-	public final int CONNECTED = 2;// estado
-	public final int CLIENT = 1;// tcon
-	public final int SERVER = 2;// tcon
+    public final String version = Inf.version;
+    public final int NULL = Inf.NULL;//estado
+    public final int WAITING = Inf.WAITING;//estado
+    public final int CONNECTED = Inf.CONNECTED;//estado
+    public final int CLIENT = Inf.CLIENT;//tcon
+    public final int SERVER = Inf.SERVER;//tcon
+
 	final byte[] EN_ESPERA = { 1 };
 	final byte[] CONECTADO = { 2 };
 	final byte[] IO_EXCEPTION = { 3 };
 	final byte[] CONEXION_PERDIDA = { 4 };
-	final byte[] DATO_RECIBIDOL = { 6 };
 	final byte[] DATO_RECIBIDO = { 7 };
 	final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	BluetoothSocket socket;
@@ -37,9 +38,8 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	DataOutputStream outputSt;
 	BluetoothDevice mDevice;
 	BluetoothAdapter BTAdapter;
-	TimeOut timeOut;
-	boolean timeOutEnabled = false;
 	Context context;
+    boolean timeOutEnabled = false;
 	public int tcon = NULL;
 	boolean conectado = false;
 	public int estado = NULL;
@@ -178,7 +178,6 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 
 	public void Cortar_Conexion() {
 		try {
-			DisTimeOut();
 			if (estado == CONNECTED && socket != null) {
 				socket.close();
 				cancel(true);// socket = null;
@@ -270,38 +269,32 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		return null;
 	}
 
-	public void EnTimeOut(final long ms) {
-		if (!timeOutEnabled) {
-			final int sender = tcon;
-			new Thread(new Runnable() {
+    public void EnTimeOut(final long ms) {
+        if(!timeOutEnabled) {
+            final int sender = tcon;
+            new Thread(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(ms);
-					} catch (InterruptedException e) {
-						if(edebug)
-							e.printStackTrace();
-					}
-				}
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(ms);
+                    } catch (InterruptedException e) {
+                        if(edebug)
+                            e.printStackTrace();
+                    }
+                }
 
-				@Override
-				protected void finalize() throws Throwable {
-					if (timeOutEnabled && estado == CONNECTED && tcon == sender) {
-						Cortar_Conexion();
-					}
-					timeOutEnabled = false;
-					super.finalize();
-				}
-			}).run();
-		}
-	}
-
-	public void DisTimeOut() {
-		if (timeOutEnabled) {
-			timeOut.cancel(true);
-		}
-	}
+                @Override
+                protected void finalize() throws Throwable {
+                    if (timeOutEnabled && estado == CONNECTED && tcon == sender) {
+                        Cortar_Conexion();
+                    }
+                    timeOutEnabled = false;
+                    super.finalize();
+                }
+            }).run();
+        }
+    }
 
 	@Override
 	protected void onProgressUpdate(byte[]... values) {

@@ -39,7 +39,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	ServerSocket serverSocket;//Medio de Conexión del Servidor
 	DataInputStream inputSt;//Flujo de datos de entrada
 	DataOutputStream outputSt;//Flujo de datos de salida
-	boolean timeOutEnabled = false;//Tipo de conexión actual
+	boolean timeOutEnabled = false;
 	Context context;//Contexto de la aplicación
 	public int tcon = NULL;//Tipo de conexión actual
 	boolean conectado = false;
@@ -154,6 +154,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
     public void enviar(int dato) {
 		enviar_Int8(dato);
     }
+
 	public void enviar_Int8(int dato) {
 		try {
 			if (estado == CONNECTED)
