@@ -150,7 +150,6 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	 * función de envio numérico, 1 Byte (rango de 0 a 255)
 	 * @param dato
 	 */
-
     public void enviar(int dato) {
 		enviar_Int8(dato);
     }
