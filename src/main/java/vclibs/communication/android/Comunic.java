@@ -187,7 +187,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
         }
     }
 
-    public void enviar_Int64(int dato) {
+    public void enviar_Int64(long dato) {
         try {
             if (estado == CONNECTED)
                 outputSt.writeLong(dato);
@@ -198,7 +198,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
         }
     }
 
-    public void enviar(float dato) {
+    public void enviar_Float(float dato) {
         try {
             if (estado == CONNECTED)
                 outputSt.writeFloat(dato);
@@ -209,7 +209,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
         }
     }
 
-    public void enviar(double dato) {
+    public void enviar_Double(double dato) {
         try {
             if (estado == CONNECTED)
                 outputSt.writeDouble(dato);
@@ -356,17 +356,20 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			byte[] buffer = values[2];
 			String rcv = new String(buffer, 0, len);
 			int[] nrcv = new int[len];
+            byte[] brcv = new byte[len];
             if(Flag_LowLevelSig) {
                 for(int i = 0; i < len; i++) {
                     nrcv[i] = buffer[i];
+                    brcv[i] = buffer[i];
                 }
             }else if(Flag_LowLevel) {
 				for(int i = 0; i < len; i++) {
 					nrcv[i] = 0xFF & buffer[i];
+                    brcv[i] = buffer[i];
 				}
 			}
 			if (onCOMListener != null)
-				onCOMListener.onDataReceived(rcv, nrcv);
+				onCOMListener.onDataReceived(len, rcv, nrcv, brcv);
 			makeToast(Inf.DATO_RECIBIDO);
 			wlog(rcv);
 		} else if (orden == CONECTADO) {

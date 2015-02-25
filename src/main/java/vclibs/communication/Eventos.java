@@ -13,7 +13,7 @@ public class Eventos {
 	public interface OnComunicationListener {
 		//Evento lanzado al recibir información,
 		//pasa los datos recibnidos como Texto en la variable dato
-		public void onDataReceived(String dato, int[] ndato);
+		public void onDataReceived(int nbytes, String dato, int[] ndato, byte[] bdato);
 		
 	}
 	
