@@ -1,17 +1,30 @@
 apply plugin: 'com.android.library'
 
 android {
+    signingConfigs {
+        Sebasu {
+            keyAlias 'sebasuk'
+            keyPassword 'Sehnlich69K'
+            storeFile file('P:/Instaladores/Desarrollo de Software/Android/AndroidKeyStore.jks')
+            storePassword 'Kagutsuchi2.4'
+        }
+    }
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.0 rc3'
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 22
         versionCode 20150228
         versionName '1.4'
+        signingConfig signingConfigs.Sebasu
     }
     buildTypes {
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.Sebasu
+        }
+        debug {
+            signingConfig signingConfigs.Sebasu
         }
     }
     compileOptions {

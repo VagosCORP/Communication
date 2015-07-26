@@ -4,7 +4,7 @@ package vclibs.communication;
 public class Inf {
 	
 	//Constantes de estado y tipo de Conexión
-	public static final String version = "20140909";
+	public static final String version = "20150228";
 	public static final int NULL = 0;//estado, Desocupado
 	public static final int WAITING = 1;//estado, En espera
 	public static final int CONNECTED = 2;//estado, Conectado
