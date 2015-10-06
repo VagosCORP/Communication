@@ -14,6 +14,7 @@ import java.net.Socket;
 import vclibs.communication.Eventos.OnComunicationListener;
 import vclibs.communication.Eventos.OnConnectionListener;
 import vclibs.communication.Inf;
+import vclibs.communication.Senders;
 
 //Clase de comunicación de Red para Android
 public class Comunic extends AsyncTask<Void, byte[], Integer> {
@@ -54,6 +55,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
     public boolean Flag_LowLevelSig = false;
 
 	//Eventos usados según el caso
+	Senders senders;
 	OnConnectionListener onConnListener;
 	OnComunicationListener onCOMListener;
 
@@ -81,9 +83,9 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		if(idebug) {
 //			Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
 			if(tcon == SERVER)
-				Log.i("Server",text);
+				Log.i("Server", text);
 			else if(tcon == CLIENT)
-				Log.i("Client",text);
+				Log.i("Client", text);
 		}
 	}
 
@@ -134,91 +136,112 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	 * Función de envio de Texto
 	 * @param dato
 	 */
-	public void enviar(String dato) {
+	public int enviar(String dato) {
 //		Log.d("Comunic", "Enviar String: " + dato);
-		try {
-			if (estado == CONNECTED)
+        int res = 0;
+        try {
+			if (estado == CONNECTED) {
 				outputSt.writeBytes(dato);
+                byte[] temp = dato.getBytes();
+                int sum = 0;
+                for(int i = 0; i < dato.length(); i++)
+                    sum += temp[i];
+                res = sum;
+			}else
+                res = 0;
 		} catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
+        return res;
 	}
 
 	/**
 	 * función de envio numérico, 1 Byte (rango de 0 a 255)
 	 * @param dato
 	 */
-    public void enviar(int dato) {
-		enviar_Int8(dato);
+	public int enviar(int dato) {
+		return enviar_Int8(dato);
     }
 
-	public void enviar_Int8(int dato) {
+	public int enviar_Int8(int dato) {
+		int res = 0;
 		try {
-			if (estado == CONNECTED)
-				outputSt.writeByte(dato);
-		} catch (IOException e) {
+			if(estado == CONNECTED)
+				res = senders.enviar_Int8(dato);
+		}catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
+		return res;
 	}
 
-    public void enviar_Int16(int dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeShort(dato);
-        } catch (IOException e) {
-            wlog(e.getMessage());
-            if(edebug)
-                e.printStackTrace();
-        }
-    }
+	public int enviar_Int16(int dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_Int16(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
-    public void enviar_Int32(int dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeInt(dato);
-        } catch (IOException e) {
-            wlog(e.getMessage());
-            if(edebug)
-                e.printStackTrace();
-        }
-    }
+	public int enviar_Int32(int dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_Int32(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
-    public void enviar_Int64(long dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeLong(dato);
-        } catch (IOException e) {
-            wlog(e.getMessage());
-            if(edebug)
-                e.printStackTrace();
-        }
-    }
+	public int enviar_Int64(long dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_Int64(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
-    public void enviar_Float(float dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeFloat(dato);
-        } catch (IOException e) {
-            wlog(e.getMessage());
-            if(edebug)
-                e.printStackTrace();
-        }
-    }
+	public int enviar_Float(float dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_Float(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
-    public void enviar_Double(double dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeDouble(dato);
-        } catch (IOException e) {
-            wlog(e.getMessage());
-            if(edebug)
-                e.printStackTrace();
-        }
-    }
+	public int enviar_Double(double dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_Double(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
     //Función de finalización de Conexión
 	public void Cortar_Conexion() {
@@ -289,6 +312,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if (socket != null && socket.isConnected()) {
 				inputSt = new DataInputStream(socket.getInputStream());
 				outputSt = new DataOutputStream(socket.getOutputStream());
+				senders = new Senders(outputSt);
 				conectado = true;
 				publishProgress(CONECTADO);
 				while (socket.isConnected() && conectado && !isCancelled()) {

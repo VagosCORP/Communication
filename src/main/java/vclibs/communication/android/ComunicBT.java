@@ -16,6 +16,7 @@ import java.util.UUID;
 import vclibs.communication.Eventos.OnComunicationListener;
 import vclibs.communication.Eventos.OnConnectionListener;
 import vclibs.communication.Inf;
+import vclibs.communication.Senders;
 
 public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 
@@ -32,6 +33,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	final byte[] CONEXION_PERDIDA = { 4 };
 	final byte[] DATO_RECIBIDO = { 7 };
 	final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
 	BluetoothSocket socket;
 	BluetoothServerSocket serverSocket;
 	DataInputStream inputSt;
@@ -48,7 +50,8 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	public boolean debug = true;
 	public boolean idebug = true;
 	public boolean edebug = true;
-	
+
+	Senders senders;
 	OnConnectionListener onConnListener;
 	OnComunicationListener onCOMListener;
 
@@ -96,84 +99,109 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		BTAdapter = btAdap;
 	}
 
-	public void enviar(String dato) {
+	public int enviar(String dato) {
+		int res = 0;
 		try {
-			if (estado == CONNECTED)
+			if (estado == CONNECTED) {
 				outputSt.writeBytes(dato);
+                byte[] temp = dato.getBytes();
+                int sum = 0;
+                for(int i = 0; i < dato.length(); i++)
+                    sum += temp[i];
+                res = sum;
+            }else
+                res = 0;
 		} catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
+		return res;
 	}
-
-    public void enviar(int dato) {
-        enviar_Int8(dato);
+	/**
+	 * función de envio numérico, 1 Byte (rango de 0 a 255)
+	 * @param dato
+	 */
+    public int enviar(int dato) {
+        return enviar_Int8(dato);
     }
-    public void enviar_Int8(int dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeByte(dato);
-        } catch (IOException e) {
+
+    public int enviar_Int8(int dato) {
+		int res = 0;
+		try {
+            if(estado == CONNECTED)
+				res = senders.enviar_Int8(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
-    public void enviar_Int16(int dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeShort(dato);
-        } catch (IOException e) {
+    public int enviar_Int16(int dato) {
+		int res = 0;
+		try {
+            if(estado == CONNECTED)
+				res = senders.enviar_Int16(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
-    public void enviar_Int32(int dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeInt(dato);
-        } catch (IOException e) {
+    public int enviar_Int32(int dato) {
+		int res = 0;
+		try {
+            if(estado == CONNECTED)
+				res = senders.enviar_Int32(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
-    public void enviar_Int64(long dato) {
+    public int enviar_Int64(long dato) {
+		int res = 0;
         try {
-            if (estado == CONNECTED)
-                outputSt.writeLong(dato);
-        } catch (IOException e) {
+            if(estado == CONNECTED)
+				res = senders.enviar_Int64(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
-    public void enviar_Float(float dato) {
-        try {
-            if (estado == CONNECTED)
-                outputSt.writeFloat(dato);
-        } catch (IOException e) {
+    public int enviar_Float(float dato) {
+		int res = 0;
+		try {
+            if(estado == CONNECTED)
+				res = senders.enviar_Float(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
-    public void enviar_Double(double dato) {
+    public int enviar_Double(double dato) {
+		int res = 0;
         try {
-            if (estado == CONNECTED)
-                outputSt.writeDouble(dato);
-        } catch (IOException e) {
+            if(estado == CONNECTED)
+				res = senders.enviar_Double(dato);
+        }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
                 e.printStackTrace();
         }
+		return res;
     }
 
 	public void Cortar_Conexion() {
@@ -182,7 +210,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 				socket.close();
 				cancel(true);// socket = null;
 			}
-		} catch (IOException e) {
+		}catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
@@ -197,7 +225,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 					serverSocket.close();
 				makeToast("Espera detenida");
 			}
-		} catch (IOException e) {
+		}catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
@@ -223,10 +251,10 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		try {
 			if (tcon == CLIENT) {
 				socket = mDevice.createRfcommSocketToServiceRecord(myUUID);
-//				if (socket != null) {
+				if (socket != null) {
                 socket.connect();
-//				} else
-//					socket = null;
+				} else
+					socket = null;
 			} else if (tcon == SERVER) {
 				serverSocket = BTAdapter.listenUsingRfcommWithServiceRecord(
 						"sas", myUUID);
@@ -241,6 +269,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 			if (socket != null/* && socket.isConnected() */) {
 				inputSt = new DataInputStream(socket.getInputStream());
 				outputSt = new DataOutputStream(socket.getOutputStream());
+				senders = new Senders(outputSt);
 				conectado = true;
 				publishProgress(CONECTADO);
 				while (/* socket.isConnected() && */conectado
