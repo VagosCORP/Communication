@@ -5,12 +5,12 @@ android {
         Sebasu {
             keyAlias 'sebasuk'
             keyPassword 'Sehnlich69K'
-            storeFile file('P:/Instaladores/Desarrollo de Software/Android/AndroidKeyStore.jks')
+            storeFile file('../../AndroidKeyStore.jks')
             storePassword 'Kagutsuchi2.4'
         }
     }
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.3'
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 23
@@ -28,8 +28,6 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
     productFlavors {
     }
