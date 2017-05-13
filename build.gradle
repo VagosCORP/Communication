@@ -9,13 +9,13 @@ android {
             storePassword 'Kagutsuchi2.4'
         }
     }
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 23
-        versionCode 20151002
-        versionName '1.2.01'
+        targetSdkVersion 25
+        versionCode 20170513
+        versionName '1.2.02'
         signingConfig signingConfigs.Sebasu
     }
     buildTypes {

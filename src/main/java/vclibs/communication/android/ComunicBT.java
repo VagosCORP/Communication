@@ -102,15 +102,8 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	public int enviar(String dato) {
 		int res = 0;
 		try {
-			if (estado == CONNECTED) {
-				outputSt.writeBytes(dato);
-                byte[] temp = dato.getBytes();
-                int sum = 0;
-                for(int i = 0; i < dato.length(); i++)
-                    sum += temp[i];
-                res = sum;
-            }else
-                res = 0;
+			if (estado == CONNECTED)
+				res = senders.enviar(dato);
 		} catch (IOException e) {
 			wlog(e.getMessage());
 			if(edebug)
@@ -125,6 +118,19 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
     public int enviar(int dato) {
         return enviar_Int8(dato);
     }
+
+	public int enviar_ByteArray(byte[] dato) {
+		int res = 0;
+		try {
+			if(estado == CONNECTED)
+				res = senders.enviar_ByteArray(dato);
+		}catch (IOException e) {
+			wlog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		}
+		return res;
+	}
 
     public int enviar_Int8(int dato) {
 		int res = 0;
@@ -269,7 +275,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 			if (socket != null/* && socket.isConnected() */) {
 				inputSt = new DataInputStream(socket.getInputStream());
 				outputSt = new DataOutputStream(socket.getOutputStream());
-				senders = new Senders(outputSt);
+				senders = new Senders(outputSt, edebug);
 				conectado = true;
 				publishProgress(CONECTADO);
 				while (/* socket.isConnected() && */conectado
