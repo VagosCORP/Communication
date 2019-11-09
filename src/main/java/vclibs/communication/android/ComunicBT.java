@@ -258,7 +258,8 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 			if (tcon == CLIENT) {
 				socket = mDevice.createRfcommSocketToServiceRecord(myUUID);
 				if (socket != null) {
-                socket.connect();
+					publishProgress(EN_ESPERA);
+                	socket.connect();
 				} else
 					socket = null;
 			} else if (tcon == SERVER) {

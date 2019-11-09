@@ -3,6 +3,7 @@ package vclibs.communication.android;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.IllegalBlockingModeException;
 
 import vclibs.communication.Eventos.OnComunicationListener;
 import vclibs.communication.Eventos.OnConnectionListener;
@@ -30,9 +32,12 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	//Constantes para reportes de estado
 	final byte[] EN_ESPERA = { 1 };
 	final byte[] CONECTADO = { 2 };
-	final byte[] IO_EXCEPTION = { 3 };
+	final byte[] EXCEPTION = { 3 };
 	final byte[] CONEXION_PERDIDA = { 4 };
 	final byte[] DATO_RECIBIDO = { 7 };
+	final byte[] IO_EXCEPTION = { 8 };
+	final byte[] SECURITY_EXCEPTION = { 9 };
+	final byte[] ILLEGALBLOCKINGMODE_EXCEPTION = { 10 };
 	
 	InetSocketAddress isa;//Dirección a la cual conectarse
 	int sPort;//Puerto de Servidor, valor por defecto: 2000
@@ -75,11 +80,26 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		onCOMListener = comListener;
 	}
 
+
+	/**
+	 * Impresión de información y Toast referente al estado Actual
+	 * @param text
+	 */
+	private void makeToast(String text) {
+		if(idebug) {
+			Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+			if(tcon == SERVER)
+				Log.i("Server", text);
+			else if(tcon == CLIENT)
+				Log.i("Client", text);
+		}
+	}
+
 	/**
 	 * Impresión de información referente al estado Actual
 	 * @param text
 	 */
-	private void makeToast(String text) {
+	private void iLog(String text) {
 		if(idebug) {
 //			Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
 			if(tcon == SERVER)
@@ -93,7 +113,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	 * Impresión de información de depuración
 	 * @param text: Mensaje a imprimir
 	 */
-	private void wlog(String text) {
+	private void dLog(String text) {
 		if(debug) {
 			if(tcon == SERVER)
 				Log.d("Server",text);
@@ -143,7 +163,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if (estado == CONNECTED)
 				res = senders.enviar(dato);
 		} catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -164,7 +184,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_ByteArray(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -177,7 +197,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Int8(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -190,7 +210,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Int16(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -203,7 +223,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Int32(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -216,7 +236,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Int64(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -229,7 +249,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Float(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -242,7 +262,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			if(estado == CONNECTED)
 				res = senders.enviar_Double(dato);
 		}catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -257,7 +277,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
                 cancel(true);// socket = null;
 			}
 		} catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -270,10 +290,10 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 				// cancel(true);
 				if (serverSocket != null)
 					serverSocket.close();
-				makeToast(Inf.ESPERA_DETENIDA);
+				iLog(Inf.ESPERA_DETENIDA);
 			}
 		} catch (IOException e) {
-			wlog(e.getMessage());
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
 		}
@@ -298,10 +318,12 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	//Función del hilo de ejecución secundario
 	@Override
 	protected Integer doInBackground(Void... params) {
+		Integer resX = 0;
 		try {
 			if (tcon == CLIENT) {
 				socket = new Socket();
 //				if(socket != null) {
+				publishProgress(EN_ESPERA);
                 socket.connect(isa,7000);//reintentar por 7 segundos
 //				} else
 //					socket = null;
@@ -309,6 +331,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 				serverSocket = new ServerSocket(sPort);
 //				if (serverSocket != null) {
                 publishProgress(EN_ESPERA);
+                resX = (int)EN_ESPERA[0];
                 socket = serverSocket.accept();
                 serverSocket.close();
                 serverSocket = null;
@@ -337,13 +360,27 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 					socket.close();
 			}
 		} catch (IOException e) {
-			wlog(Inf.IO_EXCEPTION);
-			publishProgress(IO_EXCEPTION);
-			wlog(e.getMessage());
+			dLog(Inf.IO_EXCEPTION);
+			resX = (int) IO_EXCEPTION[0];
+			dLog(e.getMessage());
 			if(edebug)
 				e.printStackTrace();
+		} catch (SecurityException e) {
+			dLog(Inf.SECURITY_EXCEPTION);
+			resX = (int) SECURITY_EXCEPTION[0];
+			dLog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		} catch (IllegalBlockingModeException e) {
+			dLog(Inf.ILLEGALBLOCKINGMODE_EXCEPTION);
+			resX = (int) ILLEGALBLOCKINGMODE_EXCEPTION[0];
+			dLog(e.getMessage());
+			if(edebug)
+				e.printStackTrace();
+		} finally {
+			publishProgress(EXCEPTION);
 		}
-		return null;
+		return resX;
 	}
 
 	//Función para inicializar temporizador de corte de conexión
@@ -380,7 +417,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		byte[] orden = values[0];
 		if (orden == EN_ESPERA) {
 			estado = WAITING;
-			makeToast(Inf.EN_ESPERA);
+			iLog(Inf.EN_ESPERA);
 		} else if (orden == DATO_RECIBIDO) {
 			int len = Integer.parseInt(new String(values[1]));
 			byte[] buffer = values[2];
@@ -400,18 +437,18 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 			}
 			if (onCOMListener != null)
 				onCOMListener.onDataReceived(len, rcv, nrcv, brcv);
-			makeToast(Inf.DATO_RECIBIDO);
-			wlog(rcv);
+			iLog(Inf.DATO_RECIBIDO);
+			dLog(rcv);
 		} else if (orden == CONECTADO) {
 			estado = CONNECTED;
 			if (onConnListener != null)
 				onConnListener.onConnectionstablished();
-			makeToast(Inf.CONECTADO);
-		} else if (orden == IO_EXCEPTION) {
-			// makeToast(Inf.IO_EXCEPTION);
+			iLog(Inf.CONECTADO);
+		} else if (orden == EXCEPTION) {
+			iLog(Inf.EXCEPTION);
 			estado = NULL;
 		} else if (orden == CONEXION_PERDIDA) {
-			makeToast(Inf.CONEXION_PERDIDA);
+			iLog(Inf.CONEXION_PERDIDA);
 			Cortar_Conexion();
 		}
 		super.onProgressUpdate(values);
@@ -420,7 +457,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	//Acciones ante cancelación de Actividad del hilo
 	@Override
 	protected void onCancelled() {
-		wlog(Inf.ON_CANCELLED);
+		dLog(Inf.ON_CANCELLED);
         onPostExecute(1);
 		super.onCancelled();
 	}
@@ -431,7 +468,18 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		estado = NULL;
 		if (onConnListener != null)
 			onConnListener.onConnectionfinished();
-		makeToast(Inf.ON_POSTEXEC);
+		if(result == (int)EN_ESPERA[0])
+			makeToast("Cortado por problema de creación de Socket");
+		if(result == (int) IO_EXCEPTION[0]) {
+			if(tcon == SERVER)
+				makeToast(Inf.IO_EXCEPTION_SERVER);
+			else if(tcon == CLIENT)
+				makeToast(Inf.IO_EXCEPTION_CLIENT);
+		} if(result == (int) SECURITY_EXCEPTION[0])
+			makeToast(Inf.SECURITY_EXCEPTION);
+		if(result == (int) ILLEGALBLOCKINGMODE_EXCEPTION[0])
+			makeToast(Inf.ILLEGALBLOCKINGMODE_EXCEPTION);
+		dLog(Inf.ON_POSTEXEC);
 		super.onPostExecute(result);
 	}
 }

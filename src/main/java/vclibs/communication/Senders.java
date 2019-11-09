@@ -143,6 +143,8 @@ public class Senders {
         res += 0xff & temp[5];
         res += 0xff & temp[6];
         res += 0xff & temp[7];
+        //Log.d("enviar_Int64A", (0xff & temp[0]) + " " + (0xff & temp[1]) + " " + (0xff & temp[2]) + " " + (0xff & temp[3]));
+        //Log.d("enviar_Int64B", (0xff & temp[4]) + " " + (0xff & temp[5]) + " " + (0xff & temp[6]) + " " + (0xff & temp[7]) + " " + res);
         return res;
     }
 
@@ -194,13 +196,5 @@ public class Senders {
         res += 0xff&temp[7];
         return res;
     }
-
-//    public static byte [] long2ByteArray (long value) {
-//        return ByteBuffer.allocate(8).putLong(value).array();
-//    }
-//
-//    public static byte [] float2ByteArray (float value) {
-//        return ByteBuffer.allocate(4).putFloat(value).array();
-//    }
 
 }

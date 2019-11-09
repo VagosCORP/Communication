@@ -12,15 +12,20 @@ public class Inf {
 	public static final int SERVER = 2;//Tipo de conexión(tcon), Servidor
 	
 	//Constantes de Texto para la impresión del estado actual
-	public static final String EN_ESPERA = "En Espera";
-	public static final String DATO_RECIBIDO = "Dato recibido";
-	public static final String DATO_RECIBIDOx = "Dato recibido: ";
-	public static final String CONECTADO = "Conexion establecida";
-	public static final String IO_EXCEPTION = "IO Exception";
-	public static final String CONEXION_PERDIDA = "Conexion Perdida";
-	public static final String ESPERA_DETENIDA = "Espera detenida";
+	public static final String EN_ESPERA = "Awaiting";
+	public static final String DATO_RECIBIDO = "Data received";
+	public static final String CONECTADO = "Connection Established";
+	public static final String EXCEPTION = "Process Exception";
+	public static final String CONEXION_PERDIDA = "Connection Lost";
+	public static final String ESPERA_DETENIDA = "Awaiting Stopt";
 	public static final String ON_CANCELLED = "onCancelled";
 	public static final String ON_POSTEXEC = "onPostexecute";
+
+	public static final String IO_EXCEPTION = "IO Exception";
+	public static final String SECURITY_EXCEPTION = "Security Exception";
+	public static final String ILLEGALBLOCKINGMODE_EXCEPTION = "Illegal Blocking Mode Exception";
+	public static final String IO_EXCEPTION_CLIENT = "Failed to Connect to desired IP and Port after 7sec";
+	public static final String IO_EXCEPTION_SERVER = "Can't open desired port, please try another";
 	 
 	/**
 	 * Función de impresión de información, depende de tcon y el texto
