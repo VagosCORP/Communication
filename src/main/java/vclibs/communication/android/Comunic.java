@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.IllegalBlockingModeException;
 
 import vclibs.communication.Eventos.OnComunicationListener;
@@ -58,6 +59,8 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 	
 	public boolean Flag_LowLevel = true;
     public boolean Flag_LowLevelSig = false;
+
+    public boolean littleEndian = false;
 
 	//Eventos usados según el caso
 	Senders senders;
@@ -208,7 +211,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
 			if(estado == CONNECTED)
-				res = senders.enviar_Int16(dato);
+				res = senders.enviar_Int16(dato, littleEndian);
 		}catch (IOException e) {
 			dLog(e.getMessage());
 			if(edebug)
@@ -221,7 +224,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
 			if(estado == CONNECTED)
-				res = senders.enviar_Int32(dato);
+				res = senders.enviar_Int32(dato, littleEndian);
 		}catch (IOException e) {
 			dLog(e.getMessage());
 			if(edebug)
@@ -234,7 +237,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
 			if(estado == CONNECTED)
-				res = senders.enviar_Int64(dato);
+				res = senders.enviar_Int64(dato, littleEndian);
 		}catch (IOException e) {
 			dLog(e.getMessage());
 			if(edebug)
@@ -247,7 +250,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
 			if(estado == CONNECTED)
-				res = senders.enviar_Float(dato);
+				res = senders.enviar_Float(dato, littleEndian);
 		}catch (IOException e) {
 			dLog(e.getMessage());
 			if(edebug)
@@ -260,7 +263,7 @@ public class Comunic extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
 			if(estado == CONNECTED)
-				res = senders.enviar_Double(dato);
+				res = senders.enviar_Double(dato, littleEndian);
 		}catch (IOException e) {
 			dLog(e.getMessage());
 			if(edebug)

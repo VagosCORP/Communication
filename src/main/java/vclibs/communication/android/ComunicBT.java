@@ -51,6 +51,8 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 	public boolean idebug = true;
 	public boolean edebug = true;
 
+	public boolean littleEndian = false;
+
 	Senders senders;
 	OnConnectionListener onConnListener;
 	OnComunicationListener onCOMListener;
@@ -149,7 +151,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
             if(estado == CONNECTED)
-				res = senders.enviar_Int16(dato);
+				res = senders.enviar_Int16(dato, littleEndian);
         }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
@@ -162,7 +164,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
             if(estado == CONNECTED)
-				res = senders.enviar_Int32(dato);
+				res = senders.enviar_Int32(dato, littleEndian);
         }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
@@ -175,7 +177,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
         try {
             if(estado == CONNECTED)
-				res = senders.enviar_Int64(dato);
+				res = senders.enviar_Int64(dato, littleEndian);
         }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
@@ -188,7 +190,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
 		try {
             if(estado == CONNECTED)
-				res = senders.enviar_Float(dato);
+				res = senders.enviar_Float(dato, littleEndian);
         }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
@@ -201,7 +203,7 @@ public class ComunicBT extends AsyncTask<Void, byte[], Integer> {
 		int res = 0;
         try {
             if(estado == CONNECTED)
-				res = senders.enviar_Double(dato);
+				res = senders.enviar_Double(dato, littleEndian);
         }catch (IOException e) {
             wlog(e.getMessage());
             if(edebug)
