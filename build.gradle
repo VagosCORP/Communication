@@ -9,10 +9,9 @@ android {
             storePassword 'Kagutsuchi2.4'
         }
     }
-    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 20191107
         versionName '1.2.05'
         signingConfig signingConfigs.Sebasu
@@ -30,6 +29,7 @@ android {
     }
     productFlavors {
     }
+    compileSdkVersion 30
 }
 
 dependencies {
