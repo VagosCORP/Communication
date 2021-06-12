@@ -5,15 +5,15 @@ android {
         Sebasu {
             keyAlias 'sebasuk'
             keyPassword 'Sehnlich69K'
-            storeFile file('L:\\AndroidStudioProjects\\AndroidKeyStore.jks')
+            storeFile file('L:\\5_WorkSpaces\\AndroidStudioProjects\\AndroidKeyStore.jks')
             storePassword 'Kagutsuchi2.4'
         }
     }
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 30
-        versionCode 20191107
-        versionName '1.2.05'
+        versionCode 20210608
+        versionName '1.2.10'
         signingConfig signingConfigs.Sebasu
     }
     buildTypes {
