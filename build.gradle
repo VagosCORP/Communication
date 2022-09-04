@@ -11,9 +11,7 @@ android {
     }
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 30
-        versionCode 20210608
-        versionName '1.2.10'
+        targetSdkVersion 31
         signingConfig signingConfigs.Sebasu
     }
     buildTypes {
@@ -29,7 +27,7 @@ android {
     }
     productFlavors {
     }
-    compileSdkVersion 30
+    compileSdkVersion 31
 }
 
 dependencies {
